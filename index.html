@@ -272,7 +272,7 @@ footer{background:var(--ink);color:#fff;padding:50px 20px 24px;margin-top:40px}
 
 <header>
   <div class="navwrap">
-    <a href="#" class="logo" onclick="showListing();return false">SPAR<span>Q</span></a>
+    <a href="#" class="logo" onclick="logoTapHandler();return false">SPAR<span>Q</span></a>
     <nav class="navlinks">
       <a href="#" onclick="scrollToProducts();return false">Shop</a>
       <a href="#" onclick="scrollToFooter();return false">Contact</a>
@@ -580,6 +580,18 @@ function switchGallery(i,el){
   el.classList.add('active');
 }
 function changeDetailQty(d){detailQty=Math.max(1,detailQty+d);$('detailQty').textContent=detailQty}
+let logoTapCount=0,logoTapTimer=null;
+function logoTapHandler(){
+  logoTapCount++;
+  clearTimeout(logoTapTimer);
+  logoTapTimer=setTimeout(()=>{logoTapCount=0},2500);
+  if(logoTapCount>=5){
+    logoTapCount=0;
+    window.location.href='admin.html';
+    return;
+  }
+  showListing();
+}
 function showListing(skipHistory){
   document.getElementById('listingView').style.display='block';
   $('detailView').classList.remove('active');
