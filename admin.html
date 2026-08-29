@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SPARQ Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--ink:#15121c;--coral:#ff4e36;--violet:#4c1d95;--yellow:#ffd400;--muted:#7a7288;--line:#e5e0ee;--bg:#f9f7fc}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,var(--violet),#2f0f5e);color:#fff;padding:20px}
+header h1{margin:0;font-size:22px}
+.wrap{max-width:900px;margin:0 auto;padding:20px}
+.card{background:#fff;border-radius:16px;padding:22px;margin-bottom:20px;border:1px solid var(--line)}
+h2{margin:0 0 16px;font-size:18px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;margin-top:12px}
+input,textarea,select{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--coral)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.btn{padding:12px 22px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;margin-top:16px}
+.btn-primary{background:var(--coral);color:#fff}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-danger{background:#e02424;color:#fff;padding:8px 14px;font-size:13px;margin:0}
+.btn-muted{background:#eee;color:#333}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;color:var(--muted)}
+.scroll{overflow-x:auto}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#f0eaf9;color:var(--violet)}
+.small{color:var(--muted);font-size:12px}
+.tabbar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tabbtn{padding:10px 18px;border-radius:10px;background:#fff;border:1.5px solid var(--line);font-weight:700;font-size:13px;cursor:pointer}
+.tabbtn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tabpanel{display:none}
+.tabpanel.active{display:block}
+.msg{font-size:13px;margin-top:10px}
+.msg.err{color:#e02424}
+.msg.ok{color:#0a8a3f}
+.prodrow{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.prodrow img{width:54px;height:54px;object-fit:cover;border-radius:8px;background:#f0eaf9}
+.prodinfo{flex:1}
+.prodname{font-weight:700;font-size:14px}
+.prodactions{display:flex;gap:8px;margin-top:6px}
+.linkbtn{background:none;color:var(--violet);font-weight:700;font-size:12px;padding:0}
+ .uploading{opacity:.65;pointer-events:none}
+.upload-thumb{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<header><h1>SPARQ Admin</h1></header>
+
+<div class="wrap">
+
+<div class="card" id="loginCard">
+  <h2>Owner Login</h2>
+  <p class="small">Supabase Authentication required. Enter your owner email and password.</p>
+  <label>Email</label><input id="loginEmail" type="email">
+  <label>Password</label><input id="loginPassword" type="password">
+  <button class="btn btn-primary" id="loginBtn">Login</button>
+  <div class="msg err" id="loginMsg"></div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="tabbar">
+    <button class="tabbtn active" onclick="switchTab('orders',this)">Orders</button>
+    <button class="tabbtn" onclick="switchTab('products',this)">Products</button>
+    <button class="tabbtn" onclick="switchTab('settings',this)">Settings</button>
+    <button class="tabbtn" onclick="logout()" style="margin-left:auto;background:#fff0ee;color:#e02424;border-color:#f5c8c0">Logout</button>
+  </div>
+
+  <div class="tabpanel active" id="tab-orders">
+    <div class="card">
+      <h2>Orders</h2>
+      <div class="scroll"><table><thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="orders"></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="tabpanel" id="tab-products">
+    <div class="card">
+      <h2 id="prodFormTitle">Add / Edit Product</h2>
+      <input type="hidden" id="productId">
+      <div class="grid2">
+        <div><label>Name</label><input id="pName" placeholder="Product name"></div>
+        <div><label>Category</label><input id="pCategory" placeholder="e.g. Electronics"></div>
+        <div><label>Price (Rs.)</label><input id="pPrice" type="number" min="0"></div>
+        <div><label>Badge (optional)</label><input id="pBadge" placeholder="e.g. NEW / SALE"></div>
+      </div>
+      <label>Product Images</label>
+      <input id="pImageFiles" type="file" accept="image/*" multiple>
+      <div class="small">Select one or more images. They will upload directly to Supabase Storage.</div>
+      <div id="uploadPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>
+      <label>Image URLs (comma-separated, first = main)</label>
+      <textarea id="pImages" rows="3" placeholder="Uploaded image URLs will appear here automatically."></textarea>
+      <label>Description</label>
+      <textarea id="pDesc" rows="3"></textarea>
+      <div class="grid2">
+        <div><label>Active</label><select id="pActive"><option value="true">Yes</option><option value="false">No</option></select></div>
+        <div><label>Free Delivery</label><select id="pFreeDelivery"><option value="false">No (COD charge applies)</option><option value="true">Yes (no COD charge)</option></select></div>
+      </div>
+      <button class="btn btn-primary" id="saveProduct">Save Product</button>
+      <button class="btn btn-muted" id="clearProduct" type="button">Clear</button>
+      <div class="msg" id="prodMsg"></div>
+    </div>
+    <div class="card">
+      <h2>All Products</h2>
+      <div id="productList"></div>
+    </div>
+  </div>
+
+  <div class="tabpanel" id="tab-settings">
+    <div class="card">
+      <h2>Store Settings</h2>
+      <label>COD</label>
+      <select id="codEnabled"><option value="true">ON</option><option value="false">OFF</option></select>
+      <label>COD Charge (Rs.)</label>
+      <input id="codCharge" type="number" min="0">
+      <button class="btn btn-primary" id="saveSettings">Save Settings</button>
+      <div class="msg" id="settingsMsg"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const SUPABASE_URL='https://xrxcrrifadwvgknxleeb.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhyeGNycmlmYWR3dmdrbnhsZWViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1MDkxOTAsImV4cCI6MjEwMzA4NTE5MH0.N-mvC0ba1L6pgNvq4yv_isb28FuCrPm_j-RR4PMvH6w';
+let sb=(SUPABASE_URL&&!SUPABASE_URL.startsWith('PASTE_'))?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
+const $=id=>document.getElementById(id);
+const fmt=n=>'Rs. '+Number(n||0).toLocaleString('en-PK');
+function esc(s){return (s||'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+  $('tab-'+name).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+
+/* ---- Auth ---- */
+$('loginBtn').onclick=async()=>{
+  if(!sb){$('loginMsg').textContent='Supabase not configured in this file yet.';return}
+  const email=$('loginEmail').value.trim(),password=$('loginPassword').value;
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  if(error){$('loginMsg').textContent=error.message;return}
+  showApp();
+};
+async function logout(){await sb.auth.signOut();location.reload()}
+async function showApp(){
+  $('loginCard').style.display='none';
+  $('app').style.display='block';
+  await Promise.all([loadOrders(),loadProducts(),loadSettings()]);
+}
+(async function checkSession(){
+  if(!sb)return;
+  const {data}=await sb.auth.getSession();
+  if(data.session)showApp();
+})();
+
+/* ---- Orders ---- */
+async function loadOrders(){
+  const {data,error}=await sb.from('orders').select('*, order_items(*)').order('created_at',{ascending:false});
+  if(error){$('orders').innerHTML=`<tr><td colspan="6">Error: ${esc(error.message)}</td></tr>`;return}
+  $('orders').innerHTML=data.map(o=>{
+    const items=(o.order_items||[]).map(i=>`${esc(i.product_name)} × ${i.quantity}`).join('<br>');
+    return `<tr>
+      <td>${new Date(o.created_at).toLocaleString()}</td>
+      <td><strong>${esc(o.customer_name)}</strong><br>${esc(o.phone)}<br>${esc(o.city)}<br><span class="small">${esc(o.address)}</span>${o.note?`<br><span class="small"><em>${esc(o.note)}</em></span>`:''}</td>
+      <td>${items}</td>
+      <td class="mono">${fmt(o.total)}<br><span class="small">COD: ${fmt(o.cod_charge)}</span></td>
+      <td><select onchange="setStatus('${o.id}',this.value)">${["New","Confirmed","Packed","Shipped","Delivered","Cancelled"].map(s=>`<option ${s===o.status?"selected":""}>${s}</option>`).join("")}</select></td>
+      <td><button class="btn btn-danger" onclick="deleteOrder('${o.id}')">Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+async function setStatus(id,status){const {error}=await sb.from('orders').update({status}).eq('id',id);if(error)alert(error.message);else loadOrders()}
+async function deleteOrder(id){
+  if(!confirm('Delete this order permanently?'))return;
+  await sb.from('order_items').delete().eq('order_id',id);
+  const {error}=await sb.from('orders').delete().eq('id',id);
+  if(error)alert(error.message);else loadOrders();
+}
+
+/* ---- Supabase Storage Image Upload ----
+   Create a PUBLIC bucket named "products" in Supabase Storage.
+   Authenticated admins need an INSERT policy on storage.objects for this bucket.
+*/
+const PRODUCT_BUCKET='Product';
+
+function showUploadPreview(files){
+  const box=$('uploadPreview');
+  box.innerHTML='';
+  Array.from(files||[]).forEach(file=>{
+    if(!file.type.startsWith('image/')) return;
+    const img=document.createElement('img');
+    img.className='upload-thumb';
+    img.alt=file.name;
+    img.src=URL.createObjectURL(file);
+    box.appendChild(img);
+  });
+}
+
+$('pImageFiles').addEventListener('change', e=>showUploadPreview(e.target.files));
+
+async function uploadProductImages(){
+  const files=Array.from($('pImageFiles').files||[]);
+  if(!files.length) return [];
+
+  if(!sb) throw new Error('Supabase is not configured.');
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session) throw new Error('Please login again.');
+
+  const urls=[];
+  for(const file of files){
+    if(!file.type.startsWith('image/')) continue;
+    if(file.size > 5 * 1024 * 1024){
+      throw new Error(file.name+' is larger than 5 MB. Please use a smaller image.');
+    }
+
+    const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-');
+    const path=`products/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+
+    const {error:uploadError}=await sb.storage
+      .from(PRODUCT_BUCKET)
+      .upload(path,file,{contentType:file.type,cacheControl:'31536000',upsert:false});
+
+    if(uploadError) throw uploadError;
+
+    const {data}=sb.storage.from(PRODUCT_BUCKET).getPublicUrl(path);
+    if(!data?.publicUrl) throw new Error('Could not create public URL for '+file.name);
+    urls.push(data.publicUrl);
+  }
+  return urls;
+}
+
+/* ---- Products ---- */
+async function loadProducts(){
+  const {data,error}=await sb.from('products').select('*').order('created_at',{ascending:false});
+  if(error){$('productList').innerHTML=`<p>Error: ${esc(error.message)}</p>`;return}
+  $('productList').innerHTML=data.map(p=>{
+    const img=(p.images||p.image_url||'').split(',')[0].trim();
+    return `<div class="prodrow">
+      <img src="${img}" alt="">
+      <div class="prodinfo">
+        <div class="prodname">${esc(p.name)} <span class="pill">${esc(p.category||'General')}</span></div>
+        <div class="small">${fmt(p.price)} · ${p.active?'Active':'Hidden'} · ${p.free_delivery?'Free Delivery':'COD charge applies'}</div>
+        <div class="prodactions">
+          <button class="linkbtn" onclick='editProduct(${JSON.stringify(p).replace(/'/g,"&apos;")})'>Edit</button>
+          <button class="linkbtn" style="color:#e02424" onclick="deleteProduct('${p.id}')">Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function editProduct(p){
+  $('productId').value=p.id;$('pName').value=p.name;$('pCategory').value=p.category||'';$('pPrice').value=p.price;
+  $('pBadge').value=p.badge||'';$('pImages').value=p.images||p.image_url||'';$('pDesc').value=p.description||'';
+  $('pActive').value=String(p.active);$('pFreeDelivery').value=String(!!p.free_delivery);
+  $('prodFormTitle').textContent='Edit Product';
+  window.scrollTo(0,0);
+}
+$('clearProduct').onclick=()=>{
+  ['productId','pName','pCategory','pPrice','pBadge','pImages','pDesc'].forEach(id=>$(id).value='');
+  $('pImageFiles').value='';
+  $('uploadPreview').innerHTML='';
+  $('pActive').value='true';$('pFreeDelivery').value='false';
+  $('prodFormTitle').textContent='Add / Edit Product';
+};
+$('saveProduct').onclick=async()=>{
+  const btn=$('saveProduct');
+  btn.disabled=true;
+  btn.textContent='Uploading / Saving...';
+
+  try{
+    const uploadedUrls=await uploadProductImages();
+    const existingUrls=$('pImages').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const allUrls=[...existingUrls,...uploadedUrls];
+    const uniqueUrls=[...new Set(allUrls)];
+
+    const payload={
+      name:$('pName').value.trim(),
+      category:$('pCategory').value.trim(),
+      price:Number($('pPrice').value||0),
+      badge:$('pBadge').value.trim(),
+      images:uniqueUrls.join(','),
+      description:$('pDesc').value.trim(),
+      active:$('pActive').value==='true',
+      free_delivery:$('pFreeDelivery').value==='true'
+    };
+
+    const id=$('productId').value;
+    const q=id?sb.from('products').update(payload).eq('id',id):sb.from('products').insert(payload);
+    const {error}=await q;
+    if(error) throw error;
+
+    $('prodMsg').className='msg ok';
+    $('prodMsg').textContent=uploadedUrls.length
+      ? `Saved! ${uploadedUrls.length} image(s) uploaded to Supabase.`
+      : 'Saved!';
+    $('clearProduct').click();
+    await loadProducts();
+  }catch(error){
+    $('prodMsg').className='msg err';
+    $('prodMsg').textContent=error?.message||String(error);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Save Product';
+  }
+};
+async function deleteProduct(id){
+  if(!confirm('Delete this product?'))return;
+  const {error}=await sb.from('products').delete().eq('id',id);
+  if(error)alert(error.message);else loadProducts();
+}
+
+/* ---- Settings ---- */
+async function loadSettings(){
+  const {data}=await sb.from('store_settings').select('*').eq('id',1).maybeSingle();
+  if(data){$('codEnabled').value=String(data.cod_enabled);$('codCharge').value=data.cod_charge}
+}
+$('saveSettings').onclick=async()=>{
+  const payload={id:1,cod_enabled:$('codEnabled').value==='true',cod_charge:Number($('codCharge').value||0)};
+  const {error}=await sb.from('store_settings').upsert(payload);
+  $('settingsMsg').className='msg '+(error?'err':'ok');
+  $('settingsMsg').textContent=error?error.message:'Settings saved!';
+};
+</script>
+</body>
+</html>
