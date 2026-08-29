@@ -15,7 +15,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Store","name":"SPARQ","description":"Online multi-category store with Cash on Delivery across Pakistan."}
 </script>
-<!-- Meta Pixel Code (add ID later) -->
+<!-- Meta Pixel Code (ID loaded dynamically from Store Settings) -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -25,11 +25,8 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', 'PASTE_YOUR_META_PIXEL_ID_HERE');
-fbq('track', 'PageView');
 </script>
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=PASTE_YOUR_META_PIXEL_ID_HERE&ev=PageView&noscript=1"/></noscript>
-<!-- End Meta Pixel -->
+<!-- End Meta Pixel base loader -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -39,6 +36,21 @@ fbq('track', 'PageView');
   --violet:#4c1d95; --violet-dk:#2f0f5e; --yellow:#ffd400; --teal:#00c2a8;
   --muted:#7a7288; --line:#ece5f5; --card:#ffffff;
   --radius:18px;
+}
+body.theme-midnight{
+  --ink:#0d0e1a; --cream:#f4f5fb; --coral:#ff5e7a; --coral-dk:#e8425f;
+  --violet:#1a1035; --violet-dk:#0c0620; --yellow:#ffcb47; --teal:#20e3b2;
+  --muted:#6b6b85; --line:#e6e6f0; --card:#ffffff;
+}
+body.theme-ocean{
+  --ink:#0b2438; --cream:#f2f9fb; --coral:#ff7a45; --coral-dk:#e6602c;
+  --violet:#0d5c75; --violet-dk:#083c4c; --yellow:#ffd166; --teal:#06b6d4;
+  --muted:#5c7d8a; --line:#dcedf2; --card:#ffffff;
+}
+body.theme-sunset{
+  --ink:#2b1410; --cream:#fff4ec; --coral:#f5576c; --coral-dk:#d63d52;
+  --violet:#8e3b46; --violet-dk:#5c2530; --yellow:#ffb703; --teal:#f77f00;
+  --muted:#8a6a63; --line:#f5e0d5; --card:#ffffff;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:'Inter',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden}
@@ -53,7 +65,26 @@ button{font-family:inherit;cursor:pointer;border:none}
 header{position:sticky;top:0;z-index:40;background:rgba(255,248,240,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .navwrap{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1200px;margin:0 auto}
 .logo{font-family:'Poppins';font-weight:900;font-size:26px;color:var(--ink)}
-.logo span{color:var(--coral)}
+.logo span{color:var(--coral);position:relative;display:inline-block;animation:qGlow 2.2s ease-in-out infinite}
+.logo span::before,.logo span::after{content:'';position:absolute;width:4px;height:4px;border-radius:50%;background:var(--yellow);opacity:0;pointer-events:none}
+.logo span::before{top:-1px;right:-3px;animation:sparkFly1 2.2s ease-in-out infinite}
+.logo span::after{bottom:2px;right:-6px;animation:sparkFly2 2.2s ease-in-out infinite .5s}
+@keyframes qGlow{
+  0%,100%{text-shadow:0 0 0 transparent}
+  50%{text-shadow:0 0 10px var(--coral),0 0 18px rgba(255,78,54,.55)}
+}
+@keyframes sparkFly1{
+  0%{opacity:0;transform:translate(0,0) scale(.4)}
+  25%{opacity:1;transform:translate(3px,-6px) scale(1)}
+  55%{opacity:0;transform:translate(7px,-12px) scale(.3)}
+  100%{opacity:0}
+}
+@keyframes sparkFly2{
+  0%{opacity:0;transform:translate(0,0) scale(.4)}
+  25%{opacity:1;transform:translate(5px,4px) scale(1)}
+  55%{opacity:0;transform:translate(9px,9px) scale(.3)}
+  100%{opacity:0}
+}
 .navlinks{display:flex;gap:24px;font-weight:600;font-size:15px}
 .navlinks a{opacity:.75;transition:opacity .2s}
 .navlinks a:hover{opacity:1}
@@ -77,9 +108,34 @@ header{position:sticky;top:0;z-index:40;background:rgba(255,248,240,.92);backdro
 .heroDot.active{background:#fff;transform:scale(1.3)}
 @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-25px) scale(1.08)}}
 .herowrap{position:relative;max-width:1200px;margin:0 auto;text-align:center}
-.eyebrow{display:inline-block;background:var(--yellow);color:var(--ink);font-family:'Space Mono';font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;margin-bottom:18px;transform:rotate(-2deg)}
-.hero h1{font-size:clamp(32px,7vw,58px);line-height:1.05;margin:0 0 14px}
-.hero p{font-size:17px;opacity:.85;max-width:520px;margin:0 auto 28px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--yellow),#ffb347);color:var(--ink);font-family:'Space Mono';font-size:12px;font-weight:700;letter-spacing:.5px;padding:8px 16px;border-radius:20px;margin-bottom:18px;box-shadow:0 4px 18px rgba(255,212,0,.35);animation:heroRise .9s cubic-bezier(.22,1,.36,1) both, eyebrowGlow 2.4s ease-in-out infinite}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:#1ea672;box-shadow:0 0 0 rgba(30,166,114,.6);animation:dotPulse 1.6s ease-out infinite}
+@keyframes eyebrowGlow{
+  0%,100%{box-shadow:0 4px 18px rgba(255,212,0,.35)}
+  50%{box-shadow:0 4px 26px rgba(255,212,0,.6)}
+}
+@keyframes dotPulse{
+  0%{box-shadow:0 0 0 0 rgba(30,166,114,.6)}
+  70%{box-shadow:0 0 0 7px rgba(30,166,114,0)}
+  100%{box-shadow:0 0 0 0 rgba(30,166,114,0)}
+}
+.hero h1{font-size:clamp(32px,7vw,58px);line-height:1.05;margin:0 0 14px;
+  background:linear-gradient(90deg,#fff 0%,#ffd400 25%,#ff9f6e 50%,#fff 75%,#fff 100%);
+  background-size:250% auto;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:heroShine 5s linear infinite, heroRise .9s cubic-bezier(.22,1,.36,1) both;
+}
+.hero p{font-size:17px;opacity:.85;max-width:520px;margin:0 auto 28px;
+  animation:heroRise .9s cubic-bezier(.22,1,.36,1) .15s both;
+}
+@keyframes heroShine{
+  0%{background-position:0% center}
+  100%{background-position:-250% center}
+}
+@keyframes heroRise{
+  0%{opacity:0;transform:translateY(18px)}
+  100%{opacity:1;transform:translateY(0)}
+}
 .herobtns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 .btn{padding:15px 30px;border-radius:14px;font-weight:700;font-size:15px;transition:transform .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:8px}
 .btn:active{transform:scale(.96)}
@@ -222,7 +278,7 @@ footer{background:var(--ink);color:#fff;padding:50px 20px 24px;margin-top:40px}
     <div class="blob blob1"></div>
     <div class="blob blob2"></div>
     <div class="herowrap">
-      <span class="eyebrow">⚡ CASH ON DELIVERY ACROSS PAKISTAN</span>
+      <span class="eyebrow"><span class="dot"></span>CASH ON DELIVERY ACROSS PAKISTAN</span>
       <h1>Spark your<br>everyday shopping.</h1>
       <p>Quality picks across every category — dropped at your door, pay when it arrives.</p>
       <div class="heroSlider" id="heroSlider"></div>
@@ -301,6 +357,9 @@ footer{background:var(--ink);color:#fff;padding:50px 20px 24px;margin-top:40px}
 
 <!-- CART DRAWER -->
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
+<a href="#" id="waFloatBtn" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" style="display:none;position:fixed;bottom:22px;right:18px;width:56px;height:56px;background:#25D366;border-radius:50%;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:50;text-decoration:none">
+  <svg width="30" height="30" viewBox="0 0 32 32" fill="#fff"><path d="M16.001 3C9.107 3 3.5 8.607 3.5 15.501c0 2.363.66 4.573 1.803 6.457L3 29l7.213-2.257a12.44 12.44 0 0 0 5.788 1.432h.005c6.894 0 12.5-5.607 12.5-12.501C28.506 8.78 22.9 3.174 16.001 3zm0 22.865h-.004a10.35 10.35 0 0 1-5.276-1.444l-.379-.225-3.923 1.228 1.245-3.822-.247-.393a10.34 10.34 0 0 1-1.586-5.508c0-5.72 4.653-10.373 10.375-10.373 2.771 0 5.377 1.081 7.335 3.043a10.303 10.303 0 0 1 3.037 7.334c0 5.721-4.653 10.16-10.577 10.16zm5.686-7.767c-.312-.156-1.845-.911-2.131-1.015-.286-.104-.494-.156-.702.156-.208.312-.806 1.015-.988 1.223-.182.208-.364.234-.676.078-.312-.156-1.317-.485-2.508-1.548-.927-.827-1.554-1.849-1.736-2.161-.182-.312-.02-.481.137-.636.14-.14.312-.364.468-.546.156-.182.208-.312.312-.52.104-.208.052-.39-.026-.546-.078-.156-.702-1.694-.962-2.32-.253-.61-.51-.527-.702-.537l-.598-.011c-.208 0-.546.078-.832.39-.286.312-1.09 1.066-1.09 2.6 0 1.534 1.116 3.017 1.272 3.225.156.208 2.196 3.354 5.32 4.702.744.321 1.324.513 1.777.657.746.237 1.425.204 1.962.124.599-.09 1.845-.754 2.106-1.482.26-.728.26-1.352.182-1.482-.078-.13-.286-.208-.598-.364z"/></svg>
+</a>
 <div class="drawer" id="cartDrawer">
   <div class="drawerhead">
     <h3 style="margin:0">Your Cart</h3>
@@ -353,7 +412,26 @@ const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const sb=(SUPABASE_URL&&!SUPABASE_URL.startsWith('PASTE_')&&SUPABASE_ANON_KEY&&!SUPABASE_ANON_KEY.startsWith('PASTE_'))?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,storageKey:'sparq-storefront-noauth'}}):null;
 
 let products=[];
-let storeSettings={cod_enabled:true,cod_charge:0};
+let storeSettings={cod_enabled:true,cod_charge:0,fb_pixel_id:'',theme:'original',whatsapp_number:'',whatsapp_message:''};
+function applyTheme(theme){
+  document.body.classList.remove('theme-midnight','theme-ocean','theme-sunset');
+  if(theme&&theme!=='original')document.body.classList.add('theme-'+theme);
+}
+function trackEvent(type,productId){
+  if(!sb)return;
+  sb.from('analytics_events').insert({event_type:type,product_id:productId||null}).then(()=>{}).catch(()=>{});
+}
+function setupWhatsappButton(){
+  const num=(storeSettings.whatsapp_number||'').replace(/[^0-9]/g,'');
+  const btn=document.getElementById('waFloatBtn');
+  if(!btn)return;
+  if(num){
+    const msg=storeSettings.whatsapp_message||'Hi! I have a question about your products.';
+    btn.href='https://wa.me/'+num+'?text='+encodeURIComponent(msg);
+    btn.style.display='flex';
+  }
+  else btn.style.display='none';
+}
 let cart=JSON.parse(localStorage.getItem('sparq_cart')||'[]');
 let currentProduct=null;
 let currentGallery=[];
@@ -372,6 +450,13 @@ async function loadStore(){
   try{
     const {data:settings}=await sb.from('store_settings').select('*').eq('id',1).maybeSingle();
     if(settings)storeSettings=settings;
+    if(storeSettings.fb_pixel_id&&window.fbq){
+      fbq('init',storeSettings.fb_pixel_id);
+      fbq('track','PageView');
+    }
+    applyTheme(storeSettings.theme);
+    setupWhatsappButton();
+    trackEvent('page_view');
   }catch(e){}
   try{
     const {data,error}=await sb.from('products').select('*').eq('active',true).order('created_at',{ascending:false});
@@ -536,6 +621,7 @@ function buyNow(){
   if(!currentProduct)return;
   const img=(currentProduct.images||currentProduct.image_url||'').split(',')[0].trim();
   buyNowItem={id:currentProduct.id,name:currentProduct.name,price:currentProduct.price,image:img,quantity:detailQty};
+  trackEvent('buy_now',currentProduct.id);
   closeCart();
   document.getElementById('listingView').style.display='none';
   $('detailView').classList.remove('active');
@@ -556,6 +642,7 @@ function addCurrentToCart(){
   if(existing)existing.quantity+=detailQty;
   else cart.push({id:currentProduct.id,name:currentProduct.name,price:currentProduct.price,image:img,quantity:detailQty});
   saveCart();
+  trackEvent('add_to_cart',currentProduct.id);
   // Toast popup removed as requested
   const btn=$('addToCartBtn');btn.style.transform='scale(.95)';setTimeout(()=>btn.style.transform='',150);
 }
@@ -588,6 +675,7 @@ function closeCart(){$('overlay').classList.remove('show');$('cartDrawer').class
 function goToCheckout(){
   if(!cart.length){showToast('Your cart is empty!');return}
   buyNowItem=null;
+  trackEvent('checkout_start');
   closeCart();
   document.getElementById('listingView').style.display='none';
   $('detailView').classList.remove('active');

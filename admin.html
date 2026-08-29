@@ -66,6 +66,7 @@ th{font-size:11px;text-transform:uppercase;color:var(--muted)}
   <div class="tabbar">
     <button class="tabbtn active" onclick="switchTab('orders',this)">Orders</button>
     <button class="tabbtn" onclick="switchTab('products',this)">Products</button>
+    <button class="tabbtn" onclick="switchTab('dashboard',this);loadDashboard()">Dashboard</button>
     <button class="tabbtn" onclick="switchTab('settings',this)">Settings</button>
     <button class="tabbtn" onclick="logout()" style="margin-left:auto;background:#fff0ee;color:#e02424;border-color:#f5c8c0">Logout</button>
   </div>
@@ -109,6 +110,36 @@ th{font-size:11px;text-transform:uppercase;color:var(--muted)}
     </div>
   </div>
 
+  <div class="tabpanel" id="tab-dashboard">
+    <div class="card">
+      <h2>Store Analytics</h2>
+      <p class="small" id="dashRange">Loading...</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+        <div style="background:#f7f5fb;border-radius:12px;padding:14px">
+          <div class="small">Visitors (Page Views)</div>
+          <div style="font-size:28px;font-weight:800" id="statVisitors">0</div>
+        </div>
+        <div style="background:#f7f5fb;border-radius:12px;padding:14px">
+          <div class="small">Added to Cart</div>
+          <div style="font-size:28px;font-weight:800" id="statCart">0</div>
+        </div>
+        <div style="background:#f7f5fb;border-radius:12px;padding:14px">
+          <div class="small">Checkout Started</div>
+          <div style="font-size:28px;font-weight:800" id="statCheckout">0</div>
+        </div>
+        <div style="background:#f7f5fb;border-radius:12px;padding:14px">
+          <div class="small">Orders Placed</div>
+          <div style="font-size:28px;font-weight:800" id="statOrders">0</div>
+        </div>
+      </div>
+      <p class="small" style="margin-top:14px" id="statConversion"></p>
+    </div>
+    <div class="card">
+      <h2>Most Viewed / Added Products</h2>
+      <div class="scroll"><table><thead><tr><th>Product</th><th>Added to Cart</th></tr></thead><tbody id="topProducts"></tbody></table></div>
+    </div>
+  </div>
+
   <div class="tabpanel" id="tab-settings">
     <div class="card">
       <h2>Store Settings</h2>
@@ -116,6 +147,19 @@ th{font-size:11px;text-transform:uppercase;color:var(--muted)}
       <select id="codEnabled"><option value="true">ON</option><option value="false">OFF</option></select>
       <label>COD Charge (Rs.)</label>
       <input id="codCharge" type="number" min="0">
+      <label>Meta Pixel ID</label>
+      <input id="fbPixelId" type="text" placeholder="e.g. 1234567890123456">
+      <label>WhatsApp Number (with country code, no + or spaces)</label>
+      <input id="waNumber" type="text" placeholder="e.g. 923001234567">
+      <label>WhatsApp Greeting Message</label>
+      <input id="waMessage" type="text" placeholder="e.g. Hi! I have a question about your products.">
+      <label>Site Theme</label>
+      <select id="themeSelect">
+        <option value="original">Original (Purple/Coral)</option>
+        <option value="midnight">Midnight (Dark)</option>
+        <option value="ocean">Ocean (Blue/Teal)</option>
+        <option value="sunset">Sunset (Orange/Pink)</option>
+      </select>
       <button class="btn btn-primary" id="saveSettings">Save Settings</button>
       <div class="msg" id="settingsMsg"></div>
     </div>
@@ -236,6 +280,41 @@ async function uploadProductImages(){
 }
 
 /* ---- Products ---- */
+async function loadDashboard(){
+  $('dashRange').textContent='Loading...';
+  try{
+    const [eventsRes,ordersRes,productsRes]=await Promise.all([
+      sb.from('analytics_events').select('event_type,product_id'),
+      sb.from('orders').select('id',{count:'exact',head:true}),
+      sb.from('products').select('id,name')
+    ]);
+    const events=eventsRes.data||[];
+    const visitors=events.filter(e=>e.event_type==='page_view').length;
+    const addCart=events.filter(e=>e.event_type==='add_to_cart').length;
+    const checkout=events.filter(e=>e.event_type==='checkout_start'||e.event_type==='buy_now').length;
+    const orderCount=ordersRes.count||0;
+    $('statVisitors').textContent=visitors;
+    $('statCart').textContent=addCart;
+    $('statCheckout').textContent=checkout;
+    $('statOrders').textContent=orderCount;
+    $('dashRange').textContent='All-time totals';
+    const conv=visitors?((orderCount/visitors)*100).toFixed(1):'0';
+    $('statConversion').textContent=`Conversion rate: ${conv}% of visitors placed an order`;
+    const nameMap={};
+    (productsRes.data||[]).forEach(p=>nameMap[p.id]=p.name);
+    const counts={};
+    events.filter(e=>e.event_type==='add_to_cart'&&e.product_id).forEach(e=>{
+      counts[e.product_id]=(counts[e.product_id]||0)+1;
+    });
+    const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,15);
+    $('topProducts').innerHTML=rows.length?rows.map(([pid,c])=>
+      `<tr><td>${esc(nameMap[pid]||'Unknown product')}</td><td>${c}</td></tr>`
+    ).join(''):'<tr><td colspan="2">No data yet</td></tr>';
+  }catch(err){
+    $('dashRange').textContent='Error loading analytics: '+(err?.message||err);
+  }
+}
+
 async function loadProducts(){
   const {data,error}=await sb.from('products').select('*').order('created_at',{ascending:false});
   if(error){$('productList').innerHTML=`<p>Error: ${esc(error.message)}</p>`;return}
@@ -318,10 +397,17 @@ async function deleteProduct(id){
 /* ---- Settings ---- */
 async function loadSettings(){
   const {data}=await sb.from('store_settings').select('*').eq('id',1).maybeSingle();
-  if(data){$('codEnabled').value=String(data.cod_enabled);$('codCharge').value=data.cod_charge}
+  if(data){
+    $('codEnabled').value=String(data.cod_enabled);
+    $('codCharge').value=data.cod_charge;
+    $('fbPixelId').value=data.fb_pixel_id||'';
+    $('waNumber').value=data.whatsapp_number||'';
+    $('waMessage').value=data.whatsapp_message||'';
+    $('themeSelect').value=data.theme||'original';
+  }
 }
 $('saveSettings').onclick=async()=>{
-  const payload={id:1,cod_enabled:$('codEnabled').value==='true',cod_charge:Number($('codCharge').value||0)};
+  const payload={id:1,cod_enabled:$('codEnabled').value==='true',cod_charge:Number($('codCharge').value||0),fb_pixel_id:$('fbPixelId').value.trim(),whatsapp_number:$('waNumber').value.trim(),whatsapp_message:$('waMessage').value.trim(),theme:$('themeSelect').value};
   const {error}=await sb.from('store_settings').upsert(payload);
   $('settingsMsg').className='msg '+(error?'err':'ok');
   $('settingsMsg').textContent=error?error.message:'Settings saved!';
