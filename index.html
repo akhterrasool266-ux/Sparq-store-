@@ -522,6 +522,15 @@ function cardHTML(p){
     </div>
   </div>`;
 }
+function railCardHTML(p){
+  const img=(p.images||p.image_url||'').split(',')[0].trim();
+  return `<div class="card" onclick="openProduct('${p.id}')">
+    <div class="cardimg">${p.badge?`<div class="tag">${p.badge}</div>`:''}<img src="${img}" alt="${esc(p.name)}" loading="lazy"></div>
+    <div class="cardbody">
+      <div class="cardprice mono">${fmt(p.price)}</div>
+    </div>
+  </div>`;
+}
 function renderProducts(cat){
   const grid=$('productGrid');
   if(!cat||cat==='All'){
@@ -531,7 +540,7 @@ function renderProducts(cat){
       const items=products.filter(p=>(p.category||'General')===c);
       return `<div class="catSection">
         <h3 class="catTitle">${esc(c)}</h3>
-        <div class="catScroll">${items.map(cardHTML).join('')}</div>
+        <div class="catScroll">${items.map(railCardHTML).join('')}</div>
       </div>`;
     }).join('');
   }else{
@@ -541,7 +550,8 @@ function renderProducts(cat){
   }
   requestAnimationFrame(revealCards);
 }
-function esc(s){return (s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function decodeEntities(s){const t=document.createElement('textarea');t.innerHTML=(s||'').toString();return t.value}
+function esc(s){return decodeEntities(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
 function revealCards(){
   const obs=new IntersectionObserver(entries=>{
@@ -561,7 +571,7 @@ async function openProduct(id,skipHistory){
   $('detailCat').textContent=currentProduct.category||'General';
   $('detailName').textContent=currentProduct.name;
   $('detailPrice').textContent=fmt(currentProduct.price);
-  $('detailDesc').textContent=currentProduct.description||'';
+  $('detailDesc').textContent=decodeEntities(currentProduct.description||'');
   $('detailQty').textContent='1';
   document.getElementById('listingView').style.display='none';
   $('detailView').classList.add('active');
