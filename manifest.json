@@ -2,7 +2,7 @@
   "name": "SPARQ Store",
   "short_name": "SPARQ",
   "start_url": "./",
-  "display": "standalone",
+  "display": "minimal-ui",
   "background_color": "#fff8f0",
   "theme_color": "#4c1d95",
   "icons": [
