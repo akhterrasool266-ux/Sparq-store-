@@ -9,12 +9,12 @@
 <meta name="theme-color" content="#4c1d95">
 <meta name="description" content="SPARQ is your one-stop online store for everyday essentials. Shop quality products with Cash on Delivery across Pakistan.">
 <meta name="keywords" content="online shopping Pakistan, SPARQ, cash on delivery, ecommerce store">
-<link rel="canonical" href="https://sparqstore.netlify.app/">
+<link rel="canonical" href="https://sparq-store.sparq-store.workers.dev/">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:title" content="SPARQ — Spark Your Everyday">
 <meta property="og:description" content="Shop quality products online with Cash on Delivery across Pakistan.">
-<meta property="og:url" content="https://sparqstore.netlify.app/">
+<meta property="og:url" content="https://sparq-store.sparq-store.workers.dev/">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Store","name":"SPARQ","description":"Online multi-category store with Cash on Delivery across Pakistan."}
@@ -57,8 +57,9 @@ body.theme-sunset{
   --muted:#8a6a63; --line:#f5e0d5; --card:#ffffff;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:'Inter',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden}
+body{margin:0;font-family:'Inter',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 h1,h2,h3,.display{font-family:'Poppins',sans-serif;font-weight:800;letter-spacing:-0.02em}
+.hero h1{font-size:clamp(26px,7vw,48px);line-height:1.15;margin:0 0 12px}
 .mono{font-family:'Space Mono',monospace}
 a{text-decoration:none;color:inherit}
 img{max-width:100%;display:block}
@@ -98,21 +99,23 @@ header{position:sticky;top:0;z-index:40;background:rgba(255,248,240,.92);backdro
 .cartcount.show{transform:scale(1)}
 
 /* Hero */
-.hero{position:relative;padding:70px 20px 50px;background:linear-gradient(135deg,var(--violet),var(--violet-dk));color:#fff;overflow:hidden}
+.hero{position:relative;padding:24px 20px 18px;background:linear-gradient(135deg,var(--violet),var(--violet-dk));color:#fff;overflow:hidden}
 .blob{position:absolute;border-radius:50%;filter:blur(50px);opacity:.5;animation:drift 12s ease-in-out infinite}
 .blob1{width:280px;height:280px;background:var(--coral);top:-80px;right:-60px;animation-delay:0s}
 .blob2{width:220px;height:220px;background:var(--yellow);bottom:-60px;left:-40px;animation-delay:3s}
-.heroSlider{position:relative;max-width:340px;height:220px;margin:36px auto 0;border-radius:20px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.35);background:rgba(255,255,255,.08)}
-.heroSlide{position:absolute;inset:0;opacity:0;transform:scale(1.05);transition:opacity .8s ease,transform .8s ease;pointer-events:none}
-.heroSlide.active{opacity:1;transform:scale(1);pointer-events:auto}
-.heroSlide img{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#fff}
+.heroSlider{position:relative;width:100%;max-width:1200px;margin:0 auto 8px;border-radius:20px;overflow:hidden;background:#f2eefa}
+@media(min-width:600px){.heroSlider{margin:16px auto 20px}}
+.heroTrack{display:flex;transition:transform .6s cubic-bezier(.65,0,.35,1);height:180px}
+@media(min-width:600px){.heroTrack{height:280px}}
+.heroSlide{position:relative;flex:0 0 100%;width:100%;height:100%}
+.heroSlide img{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#f2eefa}
 .heroSlide .heroSlideLabel{position:absolute;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(to top,rgba(0,0,0,.65),transparent);color:#fff;font-size:13px;font-weight:600;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.heroDots{display:flex;gap:6px;justify-content:center;margin-top:12px}
-.heroDot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35);transition:background .3s,transform .3s;cursor:pointer}
-.heroDot.active{background:#fff;transform:scale(1.3)}
+.heroDots{display:flex;gap:6px;justify-content:center;padding:10px 0 2px;background:var(--cream)}
+.heroDot{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .3s,transform .3s;cursor:pointer}
+.heroDot.active{background:var(--violet);transform:scale(1.3)}
 @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-25px) scale(1.08)}}
 .herowrap{position:relative;max-width:1200px;margin:0 auto;text-align:center}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--yellow),#ffb347);color:var(--ink);font-family:'Space Mono';font-size:12px;font-weight:700;letter-spacing:.5px;padding:8px 16px;border-radius:20px;margin-bottom:18px;box-shadow:0 4px 18px rgba(255,212,0,.35);animation:heroRise .9s cubic-bezier(.22,1,.36,1) both, eyebrowGlow 2.4s ease-in-out infinite}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--yellow),#ffb347);color:var(--ink);font-family:'Space Mono';font-size:11px;font-weight:700;letter-spacing:.5px;padding:6px 14px;border-radius:20px;margin-bottom:14px;box-shadow:0 4px 18px rgba(255,212,0,.35);animation:heroRise .9s cubic-bezier(.22,1,.36,1) both, eyebrowGlow 2.4s ease-in-out infinite}
 .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:#1ea672;box-shadow:0 0 0 rgba(30,166,114,.6);animation:dotPulse 1.6s ease-out infinite}
 @keyframes eyebrowGlow{
   0%,100%{box-shadow:0 4px 18px rgba(255,212,0,.35)}
@@ -123,44 +126,29 @@ header{position:sticky;top:0;z-index:40;background:rgba(255,248,240,.92);backdro
   70%{box-shadow:0 0 0 7px rgba(30,166,114,0)}
   100%{box-shadow:0 0 0 0 rgba(30,166,114,0)}
 }
-.hero h1{font-size:clamp(32px,7vw,58px);line-height:1.05;margin:0 0 14px;
-  background:linear-gradient(90deg,#fff 0%,#ffd400 25%,#ff9f6e 50%,#fff 75%,#fff 100%);
-  background-size:250% auto;
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  animation:heroShine 5s linear infinite, heroRise .9s cubic-bezier(.22,1,.36,1) both;
-}
-.hero p{font-size:17px;opacity:.85;max-width:520px;margin:0 auto 28px;
-  animation:heroRise .9s cubic-bezier(.22,1,.36,1) .15s both;
-}
-@keyframes heroShine{
-  0%{background-position:0% center}
-  100%{background-position:-250% center}
-}
 @keyframes heroRise{
   0%{opacity:0;transform:translateY(18px)}
   100%{opacity:1;transform:translateY(0)}
 }
-.herobtns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.btn{padding:15px 30px;border-radius:14px;font-weight:700;font-size:15px;transition:transform .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:8px}
-.btn:active{transform:scale(.96)}
-.btn-primary{background:var(--coral);color:#fff;box-shadow:0 8px 24px rgba(255,78,54,.4)}
-.btn-primary:hover{box-shadow:0 12px 30px rgba(255,78,54,.55);transform:translateY(-2px)}
-.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.3)}
-.btn-dark{background:var(--ink);color:#fff}
-.btn-outline{background:transparent;border:2px solid var(--ink);color:var(--ink)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
+.searchbar{display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:13px 16px;max-width:560px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,.2);animation:heroRise .7s cubic-bezier(.22,1,.36,1) both}
+.searchbar .searchicon{font-size:17px;opacity:.5;flex:none}
+.searchbar input{border:none;outline:none;flex:1;font-size:15px;font-family:'Inter',sans-serif;color:var(--ink);background:transparent;min-width:0}
+.searchbar input::placeholder{color:var(--muted)}
 
 /* Category chips */
-.chipbar{display:flex;gap:10px;overflow-x:auto;padding:20px;max-width:1200px;margin:0 auto;scrollbar-width:none}
+.chipbar{display:flex;gap:18px;overflow-x:auto;padding:18px 20px;max-width:1200px;margin:0 auto;scrollbar-width:none;background:var(--cream)}
 .chipbar::-webkit-scrollbar{display:none}
-.chip{flex:none;padding:9px 18px;border-radius:24px;background:#fff;border:1.5px solid var(--line);font-weight:600;font-size:14px;transition:all .2s;white-space:nowrap}
-.chip.active,.chip:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;background:transparent;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:12px;color:var(--muted);white-space:nowrap;transition:color .2s}
+.chip .chipicon{width:46px;height:46px;border-radius:50%;background:#fff;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .2s}
+.chip.active{color:var(--violet)}
+.chip.active .chipicon{background:var(--violet);border-color:var(--violet);box-shadow:0 6px 16px rgba(76,29,149,.3)}
 
 /* Product grid */
 .section{padding:20px 20px 60px;max-width:1200px;margin:0 auto}
 .sectitle{font-size:clamp(22px,4vw,32px);margin:0 0 6px}
 .subtitle{color:var(--muted);margin:0 0 30px;font-size:15px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:12px}}
 .catSection{max-width:1200px;margin:0 auto;padding:0 20px 8px}
 .catTitle{font-family:'Poppins';font-weight:800;font-size:20px;margin:26px 0 14px;color:var(--ink)}
 .catScroll{display:flex;gap:16px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x proximity;scrollbar-width:none}
@@ -176,8 +164,14 @@ header{position:sticky;top:0;z-index:40;background:rgba(255,248,240,.92);backdro
 .tag::after{content:'';position:absolute;left:2px;top:50%;width:4px;height:4px;background:var(--cream);border-radius:50%;transform:translateY(-50%)}
 .cardbody{padding:16px}
 .cardcat{font-size:11px;color:var(--coral);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.cardname{font-weight:700;font-size:15px;margin:4px 0 8px;line-height:1.3}
+.cardpricerow{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .cardprice{font-family:'Space Mono';font-weight:700;font-size:17px}
+.cardoldprice{font-family:'Space Mono';font-size:12px;color:var(--muted);text-decoration:line-through}
+.carddiscount{font-size:12px;font-weight:700;color:#16a34a}
+.cardname{font-weight:700;font-size:15px;margin:6px 0 4px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cardstock{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-bottom:4px}
+.cardrating{font-size:13px;color:#e5b800;letter-spacing:1px}
+.cardrating .ratingnum{color:var(--muted);font-size:11px;letter-spacing:0;margin-left:4px}
 .skeleton{background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.4s infinite}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
@@ -195,6 +189,12 @@ header{position:sticky;top:0;z-index:40;background:rgba(255,248,240,.92);backdro
 .gallery-thumbs img.active{border-color:var(--coral);opacity:1}
 .detailcat{color:var(--coral);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em}
 .detailname{font-size:clamp(24px,4vw,34px);margin:6px 0 10px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:14px;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:transform .15s,box-shadow .2s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--coral);color:#fff;box-shadow:0 8px 20px rgba(255,78,54,.35)}
+.btn-primary:hover{background:var(--coral-dk)}
+.btn-dark{background:var(--ink);color:#fff;box-shadow:0 8px 20px rgba(21,18,28,.25)}
+.btn-dark:hover{opacity:.9}
 .stars{color:var(--yellow);font-size:15px;letter-spacing:2px}
 .detailprice{font-family:'Space Mono';font-weight:700;font-size:28px;margin:16px 0}
 .detaildesc{color:#3d3650;line-height:1.7;margin-bottom:24px}
@@ -277,7 +277,7 @@ footer{background:var(--ink);color:#fff;padding:50px 20px 24px;margin-top:40px}
       <a href="#" onclick="scrollToProducts();return false">Shop</a>
       <a href="#" onclick="scrollToFooter();return false">Contact</a>
     </nav>
-    <button class="cartbtn" onclick="openCart()">🛍️<span class="cartcount" id="cartCount">0</span></button>
+    <button class="cartbtn" onclick="openCart()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><span class="cartcount" id="cartCount">0</span></button>
   </div>
 </header>
 
@@ -287,13 +287,16 @@ footer{background:var(--ink);color:#fff;padding:50px 20px 24px;margin-top:40px}
     <div class="blob blob1"></div>
     <div class="blob blob2"></div>
     <div class="herowrap">
-      <span class="eyebrow"><span class="dot"></span>CASH ON DELIVERY ACROSS PAKISTAN</span>
       <h1>Spark your<br>everyday shopping.</h1>
       <p>Quality picks across every category — dropped at your door, pay when it arrives.</p>
-      <div class="heroSlider" id="heroSlider"></div>
+      <div class="searchbar">
+        <span class="searchicon">🔍</span>
+        <input id="searchInput" placeholder="Search products..." oninput="handleSearch(this.value)">
+      </div>
     </div>
   </section>
 
+  <div class="heroSlider" id="heroSlider"></div>
   <div class="chipbar" id="chipbar"></div>
 
   <section class="section" id="productsSection">
@@ -477,57 +480,95 @@ async function loadStore(){
     else renderFallback();
   }catch(e){renderFallback()}
 }
-let heroSlideIndex=0,heroSlideTimer=null;
+let heroSlideIndex=0,heroSlideTimer=null,heroSlideCount=0;
 function renderHeroSlider(){
   const el=$('heroSlider');
   if(!el)return;
   const items=products.slice(0,6).filter(p=>(p.images||p.image_url||'').trim());
   if(!items.length){el.style.display='none';return}
-  el.innerHTML=items.map((p,i)=>{
+  heroSlideCount=items.length;
+  const track=items.map((p,i)=>{
     const img=(p.images||p.image_url||'').split(',')[0].trim();
-    return `<div class="heroSlide ${i===0?'active':''}" data-i="${i}"><img src="${img}" alt="${esc(p.name)}" loading="lazy"><div class="heroSlideLabel">${esc(p.name)}</div></div>`;
-  }).join('')+`<div class="heroDots">${items.map((_,i)=>`<span class="heroDot ${i===0?'active':''}" onclick="goHeroSlide(${i})"></span>`).join('')}</div>`;
+    return `<div class="heroSlide" data-i="${i}"><img src="${img}" alt="${esc(p.name)}" loading="lazy"><div class="heroSlideLabel">${esc(p.name)}</div></div>`;
+  }).join('');
+  el.innerHTML=`<div class="heroTrack" id="heroTrack">${track}</div><div class="heroDots">${items.map((_,i)=>`<span class="heroDot ${i===0?'active':''}" onclick="goHeroSlide(${i})"></span>`).join('')}</div>`;
   heroSlideIndex=0;
   if(heroSlideTimer)clearInterval(heroSlideTimer);
-  heroSlideTimer=setInterval(()=>goHeroSlide((heroSlideIndex+1)%items.length),3500);
+  heroSlideTimer=setInterval(()=>goHeroSlide((heroSlideIndex+1)%heroSlideCount),3500);
 }
 function goHeroSlide(i){
-  const el=$('heroSlider');if(!el)return;
-  el.querySelectorAll('.heroSlide').forEach(s=>s.classList.toggle('active',+s.dataset.i===i));
-  el.querySelectorAll('.heroDot').forEach((d,idx)=>d.classList.toggle('active',idx===i));
+  const track=$('heroTrack');if(!track)return;
+  track.style.transform=`translateX(-${i*100}%)`;
+  $('heroSlider').querySelectorAll('.heroDot').forEach((d,idx)=>d.classList.toggle('active',idx===i));
   heroSlideIndex=i;
 }
 function renderFallback(){
   $('productGrid').innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px">Store is loading… if this persists, products may not be configured yet.</p>';
 }
 
+const catIconRules=[
+  [/fitness|gym|exercise|sport/,'💪'],
+  [/electron|gadget|mobile|phone/,'🔌'],
+  [/watch/,'⌚'],
+  [/women/,'👗'],
+  [/\bmen\b|\bmen's\b/,'👔'],
+  [/fashion|cloth/,'👕'],
+  [/kid|baby|toy/,'🧸'],
+  [/beauty|cosmetic|makeup/,'💄'],
+  [/home|living|decor|furniture/,'🏡'],
+  [/kitchen|cook/,'🍳'],
+  [/bag|purse/,'👜'],
+  [/shoe|footwear/,'👟'],
+  [/jewel/,'💍']
+];
+function catIcon(cat){
+  const key=(cat||'').toLowerCase();
+  if(key==='all')return '🏠';
+  for(const [re,icon] of catIconRules){if(re.test(key))return icon}
+  return '🛍️';
+}
 function renderChips(){
   const cats=['All',...new Set(products.map(p=>p.category||'General'))];
-  $('chipbar').innerHTML=cats.map((c,i)=>`<button class="chip ${i===0?'active':''}" onclick="filterCategory('${c.replace(/'/g,"\\'")}',this)">${c}</button>`).join('');
+  $('chipbar').innerHTML=cats.map((c,i)=>`<button class="chip ${i===0?'active':''}" data-cat="${esc(c)}" onclick="filterCategory('${c.replace(/'/g,"\\'")}',this)"><span class="chipicon">${catIcon(c)}</span>${esc(c)}</button>`).join('');
+}
+function handleSearch(q){
+  const term=q.trim().toLowerCase();
+  const activeChip=document.querySelector('.chip.active');
+  const cat=activeChip?activeChip.dataset.cat:'All';
+  if(!term){renderProducts(cat==='All'?null:cat);return}
+  const grid=$('productGrid');
+  grid.className='grid';
+  const filtered=products.filter(p=>(p.name||'').toLowerCase().includes(term)||(p.category||'').toLowerCase().includes(term));
+  grid.innerHTML=filtered.length?filtered.map(cardHTML).join(''):'<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px">No products found.</p>';
+  requestAnimationFrame(revealCards);
 }
 function filterCategory(cat,el){
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
+  if($('searchInput'))$('searchInput').value='';
   renderProducts(cat);
 }
 
 function cardHTML(p){
   const img=(p.images||p.image_url||'').split(',')[0].trim();
+  const orig=Number(p.original_price)||0;
+  const price=Number(p.price)||0;
+  const hasDiscount=orig>price;
+  const pct=hasDiscount?Math.round((1-price/orig)*100):0;
+  const stock=(p.stock_count===0||p.stock_count)?p.stock_count:null;
+  const rating=Number(p.rating)||0;
+  const starsHTML=rating>0?`<div class="cardrating">${'★'.repeat(Math.round(rating))}${'☆'.repeat(5-Math.round(rating))}<span class="ratingnum">${rating.toFixed(1)}</span></div>`:'';
+  const stockHTML=stock!=null?`<div class="cardstock">📦 ${stock} in Stock</div>`:'';
   return `<div class="card" onclick="openProduct('${p.id}')">
     <div class="cardimg">${p.badge?`<div class="tag">${p.badge}</div>`:''}<img src="${img}" alt="${esc(p.name)}" loading="lazy"></div>
     <div class="cardbody">
-      <div class="cardcat">${esc(p.category||'General')}</div>
+      <div class="cardpricerow">
+        <span class="cardprice mono">${fmt(price)}</span>
+        ${hasDiscount?`<span class="cardoldprice">${fmt(orig)}</span><span class="carddiscount">-${pct}%</span>`:''}
+      </div>
       <div class="cardname">${esc(p.name)}</div>
-      <div class="cardprice mono">${fmt(p.price)}</div>
-    </div>
-  </div>`;
-}
-function railCardHTML(p){
-  const img=(p.images||p.image_url||'').split(',')[0].trim();
-  return `<div class="card" onclick="openProduct('${p.id}')">
-    <div class="cardimg">${p.badge?`<div class="tag">${p.badge}</div>`:''}<img src="${img}" alt="${esc(p.name)}" loading="lazy"></div>
-    <div class="cardbody">
-      <div class="cardprice mono">${fmt(p.price)}</div>
+      ${stockHTML}
+      ${starsHTML}
     </div>
   </div>`;
 }
@@ -540,7 +581,7 @@ function renderProducts(cat){
       const items=products.filter(p=>(p.category||'General')===c);
       return `<div class="catSection">
         <h3 class="catTitle">${esc(c)}</h3>
-        <div class="catScroll">${items.map(railCardHTML).join('')}</div>
+        <div class="catScroll">${items.map(cardHTML).join('')}</div>
       </div>`;
     }).join('');
   }else{
@@ -549,32 +590,9 @@ function renderProducts(cat){
     grid.innerHTML=list.map(cardHTML).join('');
   }
   requestAnimationFrame(revealCards);
-  initAutoScroll();
 }
-function decodeEntities(s){const t=document.createElement('textarea');t.innerHTML=(s||'').toString();return t.value}
-function esc(s){return decodeEntities(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function esc(s){return (s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
-function initAutoScroll(){
-  document.querySelectorAll('.catScroll').forEach(el=>{
-    if(el.dataset.autoScroll) return;
-    el.dataset.autoScroll='1';
-    const speed=0.3;
-    let dir=1,paused=false,resumeTimer=null;
-    function step(){
-      if(!paused && el.scrollWidth>el.clientWidth){
-        el.scrollLeft+=speed*dir;
-        if(el.scrollLeft>=el.scrollWidth-el.clientWidth-1){dir=-1}
-        else if(el.scrollLeft<=0){dir=1}
-      }
-      requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-    function pause(){paused=true;clearTimeout(resumeTimer);resumeTimer=setTimeout(()=>{paused=false},3500)}
-    el.addEventListener('touchstart',pause,{passive:true});
-    el.addEventListener('wheel',pause,{passive:true});
-    el.addEventListener('mousedown',pause);
-  });
-}
 function revealCards(){
   const obs=new IntersectionObserver(entries=>{
     entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}});
@@ -593,7 +611,7 @@ async function openProduct(id,skipHistory){
   $('detailCat').textContent=currentProduct.category||'General';
   $('detailName').textContent=currentProduct.name;
   $('detailPrice').textContent=fmt(currentProduct.price);
-  $('detailDesc').textContent=decodeEntities(currentProduct.description||'');
+  $('detailDesc').textContent=currentProduct.description||'';
   $('detailQty').textContent='1';
   document.getElementById('listingView').style.display='none';
   $('detailView').classList.add('active');

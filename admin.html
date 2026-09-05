@@ -87,6 +87,9 @@ th{font-size:11px;text-transform:uppercase;color:var(--muted)}
         <div><label>Category</label><input id="pCategory" placeholder="e.g. Electronics"></div>
         <div><label>Price (Rs.)</label><input id="pPrice" type="number" min="0"></div>
         <div><label>Badge (optional)</label><input id="pBadge" placeholder="e.g. NEW / SALE"></div>
+        <div><label>Original Price (optional, for discount %)</label><input id="pOriginalPrice" type="number" min="0" placeholder="e.g. 2170"></div>
+        <div><label>Stock Count (optional)</label><input id="pStockCount" type="number" min="0" placeholder="e.g. 100"></div>
+        <div><label>Rating (optional, 0-5)</label><input id="pRating" type="number" min="0" max="5" step="0.1" placeholder="e.g. 4.5"></div>
       </div>
       <label>Product Images</label>
       <input id="pImageFiles" type="file" accept="image/*" multiple>
@@ -361,12 +364,13 @@ async function loadProducts(){
 function editProduct(p){
   $('productId').value=p.id;$('pName').value=p.name;$('pCategory').value=p.category||'';$('pPrice').value=p.price;
   $('pBadge').value=p.badge||'';$('pImages').value=p.images||p.image_url||'';$('pDesc').value=p.description||'';
+  $('pOriginalPrice').value=p.original_price||'';$('pStockCount').value=(p.stock_count===0||p.stock_count)?p.stock_count:'';$('pRating').value=p.rating||'';
   $('pActive').value=String(p.active);$('pFreeDelivery').value=String(!!p.free_delivery);
   $('prodFormTitle').textContent='Edit Product';
   window.scrollTo(0,0);
 }
 $('clearProduct').onclick=()=>{
-  ['productId','pName','pCategory','pPrice','pBadge','pImages','pDesc'].forEach(id=>$(id).value='');
+  ['productId','pName','pCategory','pPrice','pBadge','pImages','pDesc','pOriginalPrice','pStockCount','pRating'].forEach(id=>$(id).value='');
   $('pImageFiles').value='';
   $('uploadPreview').innerHTML='';
   $('pActive').value='true';$('pFreeDelivery').value='false';
@@ -390,6 +394,9 @@ $('saveProduct').onclick=async()=>{
       badge:$('pBadge').value.trim(),
       images:uniqueUrls.join(','),
       description:$('pDesc').value.trim(),
+      original_price:$('pOriginalPrice').value?Number($('pOriginalPrice').value):null,
+      stock_count:$('pStockCount').value?Number($('pStockCount').value):null,
+      rating:$('pRating').value?Number($('pRating').value):null,
       active:$('pActive').value==='true',
       free_delivery:$('pFreeDelivery').value==='true'
     };
