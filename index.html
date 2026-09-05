@@ -131,6 +131,14 @@ header{position:sticky;top:0;z-index:40;background:rgba(255,248,240,.92);backdro
   100%{opacity:1;transform:translateY(0)}
 }
 .searchbar{display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:13px 16px;max-width:560px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,.2);animation:heroRise .7s cubic-bezier(.22,1,.36,1) both}
+.searchWrap{position:relative;max-width:560px;margin:0 auto}
+.searchWrap .searchbar{margin:0}
+.searchSuggest{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#fff;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.2);overflow:hidden;z-index:30;display:none;max-height:280px;overflow-y:auto;text-align:left}
+.searchSuggest.show{display:block}
+.searchSuggestItem{padding:12px 16px;font-size:14px;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.searchSuggestItem:last-child{border-bottom:none}
+.searchSuggestItem:hover,.searchSuggestItem:active{background:var(--cream)}
+.searchSuggestItem .si-icon{opacity:.4;font-size:13px}
 .searchbar .searchicon{font-size:17px;opacity:.5;flex:none}
 .searchbar input{border:none;outline:none;flex:1;font-size:15px;font-family:'Inter',sans-serif;color:var(--ink);background:transparent;min-width:0}
 .searchbar input::placeholder{color:var(--muted)}
@@ -289,9 +297,12 @@ footer{background:var(--ink);color:#fff;padding:50px 20px 24px;margin-top:40px}
     <div class="herowrap">
       <h1>Spark your<br>everyday shopping.</h1>
       <p>Quality picks across every category — dropped at your door, pay when it arrives.</p>
-      <div class="searchbar">
-        <span class="searchicon">🔍</span>
-        <input id="searchInput" placeholder="Search products..." oninput="handleSearch(this.value)">
+      <div class="searchWrap">
+        <div class="searchbar">
+          <span class="searchicon">🔍</span>
+          <input id="searchInput" placeholder="Search products..." autocomplete="off" autocapitalize="off" spellcheck="false" oninput="handleSearch(this.value)" onfocus="handleSearch(this.value)">
+        </div>
+        <div class="searchSuggest" id="searchSuggest"></div>
       </div>
     </div>
   </section>
@@ -532,16 +543,46 @@ function renderChips(){
   $('chipbar').innerHTML=cats.map((c,i)=>`<button class="chip ${i===0?'active':''}" data-cat="${esc(c)}" onclick="filterCategory('${c.replace(/'/g,"\\'")}',this)"><span class="chipicon">${catIcon(c)}</span>${esc(c)}</button>`).join('');
 }
 function handleSearch(q){
-  const term=q.trim().toLowerCase();
+  if(!Array.isArray(products))return;
+  const term=(q||'').trim().toLowerCase();
+  renderSearchSuggest(term);
   const activeChip=document.querySelector('.chip.active');
   const cat=activeChip?activeChip.dataset.cat:'All';
   if(!term){renderProducts(cat==='All'?null:cat);return}
   const grid=$('productGrid');
+  if(!grid)return;
   grid.className='grid';
   const filtered=products.filter(p=>(p.name||'').toLowerCase().includes(term)||(p.category||'').toLowerCase().includes(term));
   grid.innerHTML=filtered.length?filtered.map(cardHTML).join(''):'<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px">No products found.</p>';
   requestAnimationFrame(revealCards);
 }
+function renderSearchSuggest(term){
+  const box=$('searchSuggest');if(!box)return;
+  if(!Array.isArray(products)||!products.length){box.classList.remove('show');return}
+  let names;
+  if(!term){
+    names=[...new Set(products.map(p=>p.name).filter(Boolean))].slice(0,8);
+  }else{
+    names=[...new Set(products.filter(p=>(p.name||'').toLowerCase().includes(term)).map(p=>p.name))].slice(0,8);
+  }
+  if(!names.length){box.classList.remove('show');return}
+  box.innerHTML=names.map(n=>`<div class="searchSuggestItem" onmousedown="selectSearchSuggest('${n.replace(/'/g,"\\'")}')"><span class="si-icon">🔍</span>${esc(n)}</div>`).join('');
+  box.classList.add('show');
+}
+function selectSearchSuggest(name){
+  const input=$('searchInput');
+  if(input)input.value=name;
+  $('searchSuggest').classList.remove('show');
+  handleSearch(name);
+}
+document.addEventListener('click',e=>{
+  const wrap=document.querySelector('.searchWrap');
+  if(wrap&&!wrap.contains(e.target)){const box=$('searchSuggest');if(box)box.classList.remove('show')}
+});
+document.addEventListener('DOMContentLoaded',()=>{
+  const si=document.getElementById('searchInput');
+  if(si)si.addEventListener('input',e=>handleSearch(e.target.value));
+});
 function filterCategory(cat,el){
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
