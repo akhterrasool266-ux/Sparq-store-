@@ -95,6 +95,8 @@ header{position:sticky;top:0;z-index:40;background:rgba(255,248,240,.92);backdro
 .navlinks a:hover{opacity:1}
 .cartbtn{position:relative;background:var(--ink);color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform .2s}
 .cartbtn:active{transform:scale(.9)}
+@keyframes cartBump{0%{transform:scale(1) rotate(0deg)}25%{transform:scale(1.2) rotate(-12deg)}50%{transform:scale(1.05) rotate(10deg)}75%{transform:scale(1.15) rotate(-6deg)}100%{transform:scale(1) rotate(0deg)}}
+.cartbtn.cartBump{animation:cartBump .5s ease}
 .cartcount{position:absolute;top:-4px;right:-4px;background:var(--coral);color:#fff;font-size:11px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
 .cartcount.show{transform:scale(1)}
 
@@ -757,10 +759,20 @@ function buyNow(){
   renderCheckout();
 }
 function saveCart(){localStorage.setItem('sparq_cart',JSON.stringify(cart));renderCartCount()}
+let lastCartCount=cart.reduce((s,i)=>s+i.quantity,0);
 function renderCartCount(){
   const n=cart.reduce((s,i)=>s+i.quantity,0);
   const el=$('cartCount');el.textContent=n;
   el.classList.toggle('show',n>0);
+  if(n>lastCartCount){
+    const btn=document.querySelector('.cartbtn');
+    if(btn){
+      btn.classList.remove('cartBump');
+      void btn.offsetWidth; // restart animation if triggered again quickly
+      btn.classList.add('cartBump');
+    }
+  }
+  lastCartCount=n;
 }
 function addCurrentToCart(){
   if(!currentProduct)return;
