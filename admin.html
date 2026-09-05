@@ -124,6 +124,12 @@ th{font-size:11px;text-transform:uppercase;color:var(--muted)}
         <button class="rangeBtn" data-range="week" onclick="setDashRange('week',this)">This Week</button>
         <button class="rangeBtn" data-range="month" onclick="setDashRange('month',this)">This Month</button>
         <button class="rangeBtn" data-range="all" onclick="setDashRange('all',this)">All Time</button>
+        <button class="rangeBtn" data-range="custom" onclick="setDashRange('custom',this)">Custom</button>
+      </div>
+      <div id="customRangeRow" style="display:none;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:12px">
+        <div><label style="font-size:12px;color:var(--muted)">From</label><input type="date" id="customFrom" style="display:block;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-size:14px"></div>
+        <div><label style="font-size:12px;color:var(--muted)">To</label><input type="date" id="customTo" style="display:block;padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-size:14px"></div>
+        <button class="rangeBtn" style="background:var(--coral);color:#fff;border-color:var(--coral)" onclick="applyCustomRange()">Apply</button>
       </div>
       <p class="small" id="dashRange">Loading...</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
@@ -321,38 +327,63 @@ async function uploadProductImages(){
 
 /* ---- Products ---- */
 let currentDashRange='day';
-function getRangeStart(range){
+let customFromIso=null,customToIso=null;
+function getRangeBounds(range){
   const now=new Date();
   if(range==='day'){
-    return new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString();
+    return {start:new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString(),end:null};
   }
   if(range==='week'){
     const d=new Date(now);
-    const day=d.getDay(); // 0=Sunday
+    const day=d.getDay();
     d.setDate(d.getDate()-day);
     d.setHours(0,0,0,0);
-    return d.toISOString();
+    return {start:d.toISOString(),end:null};
   }
   if(range==='month'){
-    return new Date(now.getFullYear(),now.getMonth(),1).toISOString();
+    return {start:new Date(now.getFullYear(),now.getMonth(),1).toISOString(),end:null};
   }
-  return null; // all time
+  if(range==='custom'){
+    return {start:customFromIso,end:customToIso};
+  }
+  return {start:null,end:null}; // all time
 }
 function setDashRange(range,btn){
   currentDashRange=range;
   document.querySelectorAll('.rangeBtn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
+  const row=$('customRangeRow');
+  if(range==='custom'){
+    row.style.display='flex';
+    if(!customFromIso){$('dashRange').textContent='Pick a date range and tap Apply';return}
+  }else{
+    row.style.display='none';
+  }
+  loadDashboard();
+}
+function applyCustomRange(){
+  const fromVal=$('customFrom').value,toVal=$('customTo').value;
+  if(!fromVal||!toVal){alert('Please pick both From and To dates');return}
+  if(fromVal>toVal){alert('"From" date must be before "To" date');return}
+  const from=new Date(fromVal+'T00:00:00');
+  const to=new Date(toVal+'T23:59:59');
+  customFromIso=from.toISOString();
+  customToIso=to.toISOString();
   loadDashboard();
 }
 async function loadDashboard(){
   $('dashRange').textContent='Loading...';
   try{
-    const startIso=getRangeStart(currentDashRange);
+    const {start:startIso,end:endIso}=getRangeBounds(currentDashRange);
     let eventsQuery=sb.from('analytics_events').select('event_type,product_id,created_at');
     let ordersQuery=sb.from('orders').select('id',{count:'exact',head:true});
     if(startIso){
       eventsQuery=eventsQuery.gte('created_at',startIso);
       ordersQuery=ordersQuery.gte('created_at',startIso);
+    }
+    if(endIso){
+      eventsQuery=eventsQuery.lte('created_at',endIso);
+      ordersQuery=ordersQuery.lte('created_at',endIso);
     }
     const [eventsRes,ordersRes,productsRes]=await Promise.all([
       eventsQuery,
@@ -368,7 +399,10 @@ async function loadDashboard(){
     $('statCart').textContent=addCart;
     $('statCheckout').textContent=checkout;
     $('statOrders').textContent=orderCount;
-    const rangeLabel={day:'Today',week:'This week',month:'This month',all:'All-time totals'}[currentDashRange];
+    let rangeLabel={day:'Today',week:'This week',month:'This month',all:'All-time totals'}[currentDashRange];
+    if(currentDashRange==='custom'){
+      rangeLabel=startIso?`${$('customFrom').value} to ${$('customTo').value}`:'Pick a date range and tap Apply';
+    }
     $('dashRange').textContent=rangeLabel;
     const conv=visitors?((orderCount/visitors)*100).toFixed(1):'0';
     $('statConversion').textContent=`Conversion rate: ${conv}% of visitors placed an order`;
