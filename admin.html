@@ -4,6 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SPARQ Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root{--ink:#15121c;--coral:#ff4e36;--violet:#4c1d95;--yellow:#ffd400;--muted:#7a7288;--line:#e5e0ee;--bg:#f9f7fc}
 *{box-sizing:border-box}
@@ -144,6 +145,9 @@ th{font-size:11px;text-transform:uppercase;color:var(--muted)}
         </div>
       </div>
       <p class="small" style="margin-top:14px" id="statConversion"></p>
+      <div style="position:relative;width:100%;height:220px;margin-top:16px">
+        <canvas id="dashChart" role="img" aria-label="Bar chart of visitors, added to cart, checkout started, and orders placed"></canvas>
+      </div>
     </div>
     <div class="card">
       <h2>Most Viewed / Added Products</h2>
@@ -378,9 +382,42 @@ async function loadDashboard(){
     $('topProducts').innerHTML=rows.length?rows.map(([pid,c])=>
       `<tr><td>${esc(nameMap[pid]||'Unknown product')}</td><td>${c}</td></tr>`
     ).join(''):'<tr><td colspan="2">No data yet</td></tr>';
+    renderDashChart(visitors,addCart,checkout,orderCount);
   }catch(err){
     $('dashRange').textContent='Error loading analytics: '+(err?.message||err);
   }
+}
+let dashChartInstance=null;
+function renderDashChart(visitors,addCart,checkout,orders){
+  const ctx=$('dashChart');
+  if(!ctx)return;
+  const data=[visitors,addCart,checkout,orders];
+  if(dashChartInstance){
+    dashChartInstance.data.datasets[0].data=data;
+    dashChartInstance.update();
+    return;
+  }
+  dashChartInstance=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:['Visitors','Added to Cart','Checkout Started','Orders Placed'],
+      datasets:[{
+        data:data,
+        backgroundColor:['#85B7EB','#378ADD','#185FA5','#0C447C'],
+        borderRadius:4,
+        barThickness:36
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#7a7288'}},
+        y:{beginAtZero:true,grid:{color:'#e5e0ee'},ticks:{color:'#7a7288'}}
+      }
+    }
+  });
 }
 
 async function loadProducts(){
